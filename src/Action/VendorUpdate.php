@@ -4,7 +4,6 @@ namespace Saparot\ComposerTools\Action;
 
 use Saparot\ComposerTools\ComposerPackage;
 use Saparot\ComposerTools\ComposerToolsException;
-use Saparot\ComposerTools\File\Composer;
 
 class VendorUpdate {
 
@@ -26,7 +25,7 @@ class VendorUpdate {
      * @throws ComposerToolsException
      */
     function updateVendorAll (): void {
-        $this->update(null);
+         $this->update(null);
     }
 
     /**
@@ -35,7 +34,6 @@ class VendorUpdate {
      * @throws ComposerToolsException
      */
     function updateVendorPackage (ComposerPackage $packageComposer): void {
-
         $this->update($packageComposer->getComposer()->getName());
     }
 

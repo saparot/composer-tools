@@ -35,7 +35,7 @@ class LinkLocalPackage {
      * @throws ComposerToolsException
      */
     static function create (ComposerPackage $composerPackageWhere, ComposerPackage $composerPackageWhich, ?string $whichRepositoryUrl): self {
-        if (!filter_var($whichRepositoryUrl, FILTER_VALIDATE_URL)) {
+        if (!is_null($whichRepositoryUrl) &&!filter_var($whichRepositoryUrl, FILTER_VALIDATE_URL)) {
             throw new ComposerToolsException("invalid url for repo server: '{$whichRepositoryUrl}'");
         }
 
@@ -76,6 +76,7 @@ class LinkLocalPackage {
      * @throws NetworkRetrieverException
      */
     function link (bool $force = false): void {
+
         $isLinked = $this->where()->isPackageLinked($this->which());
         if (!$isLinked || $force) {
             $this->install();
@@ -96,11 +97,13 @@ class LinkLocalPackage {
         try {
             $this->which()->getComposer()->setVersion($versionForInstall);
             $this->where()->getComposer()->setRequirePackageVersion($this->which()->getComposer()->getName(), $versionForInstall);
-            $this->where()->getComposer()->setRepositories($this->addLocalTwfToRepoList());
+            $this->where()->getComposer()->setRepositories($this->addWhichToWhereRepoList());
 
             //save
             $this->which()->getComposer()->save();
             $this->where()->getComposer()->save();
+
+
             $repositoryVersion ? $vendorUpdate->updateVendorPackage($this->which()) : $vendorUpdate->updateVendorAll();
         } catch (Exception $e) {
             $this->restoreVersion($versionWhich, $versionWhere);
@@ -118,7 +121,9 @@ class LinkLocalPackage {
      */
     private function restoreVersion ($versionWhich, $versionWhere): void {
         $this->where()->getComposer()->setRequirePackageVersion($this->which()->getComposer()->getName(), $versionWhere);
+        $this->where()->getComposer()->setRepositories($this->removeWhichFromWhereRepoList());
         $this->where()->getComposer()->save();
+
         //restore version original in which
         $this->which()->getComposer()->setVersion($versionWhich);
         $this->which()->getComposer()->save();
@@ -142,7 +147,7 @@ class LinkLocalPackage {
      * @return array
      * @throws ComposerToolsException
      */
-    private function addLocalTwfToRepoList (): array {
+    private function addWhichToWhereRepoList (): array {
         $repoList = $this->where()->getComposer()->getRepositories();
         foreach ($repoList as $idx => $repo) {
             if ($repo['type'] !== 'path') {
@@ -153,9 +158,25 @@ class LinkLocalPackage {
         }
         $repoList[] = [
             'type' => 'path',
-            'url' => $this->$this->which()->getPath(),
+            'url' => $this->which()->getPath(),
         ];
 
+        return $repoList;
+    }
+
+    /**
+     * @return array
+     * @throws ComposerToolsException
+     */
+    private function removeWhichFromWhereRepoList (): array {
+        $repoList = $this->where()->getComposer()->getRepositories();
+        foreach ($repoList as $idx => $repo) {
+            if ($repo['type'] !== 'path') {
+                continue;
+            } elseif ($repo['url'] === $this->which()->getPath()) {
+                unset($repoList[$idx]);
+            }
+        }
         return $repoList;
     }
 }

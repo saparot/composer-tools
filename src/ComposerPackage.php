@@ -82,9 +82,13 @@ class ComposerPackage {
      */
     function isPackageLinked (ComposerPackage $composerPackage, ?string &$detail = ''): bool {
         $pathInstallation = $this->getPathInstallation($composerPackage);
+        $realPathInstallation = realpath($pathInstallation);
+        if (file_exists($pathInstallation) && $realPathInstallation === false) {
+            throw new ComposerToolsException("failed to resolve real path for path {$pathInstallation}");
+        }
         if (is_link($pathInstallation)) {
             $detail = 'linked';
-            if ($pathInstallation === $composerPackage->getPath()) {
+            if ($realPathInstallation === $composerPackage->getPath()) {
                 return true;
             }
             //here its symlink but mismatch
