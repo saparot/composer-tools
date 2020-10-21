@@ -93,8 +93,8 @@ class RetrieveVersionFromRepositoryUrl {
             return null;
         }
         $versions = array_keys($data['packages'][$this->composer->getName()]);
-        asort($versions);
 
+        asort($versions, SORT_NATURAL);
         $versionUse = array_pop($versions);
 
         return Version::parse($versionUse);

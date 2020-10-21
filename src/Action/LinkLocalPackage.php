@@ -35,7 +35,7 @@ class LinkLocalPackage {
      * @throws ComposerToolsException
      */
     static function create (ComposerPackage $composerPackageWhere, ComposerPackage $composerPackageWhich, ?string $whichRepositoryUrl): self {
-        if (!is_null($whichRepositoryUrl) &&!filter_var($whichRepositoryUrl, FILTER_VALIDATE_URL)) {
+        if (!is_null($whichRepositoryUrl) && !filter_var($whichRepositoryUrl, FILTER_VALIDATE_URL)) {
             throw new ComposerToolsException("invalid url for repo server: '{$whichRepositoryUrl}'");
         }
 
@@ -76,7 +76,6 @@ class LinkLocalPackage {
      * @throws NetworkRetrieverException
      */
     function link (bool $force = false): void {
-
         $isLinked = $this->where()->isPackageLinked($this->which());
         if (!$isLinked || $force) {
             $this->install();
@@ -96,13 +95,11 @@ class LinkLocalPackage {
 
         try {
             $this->which()->getComposer()->setVersion($versionForInstall);
-            $this->where()->getComposer()->setRequirePackageVersion($this->which()->getComposer()->getName(), $versionForInstall);
+            $this->where()->getComposer()->setRequirePackageVersion($this->which()->getComposer()->getName(), sprintf('^%s', $versionForInstall));
             $this->where()->getComposer()->setRepositories($this->addWhichToWhereRepoList());
-
             //save
             $this->which()->getComposer()->save();
             $this->where()->getComposer()->save();
-
 
             $repositoryVersion ? $vendorUpdate->updateVendorPackage($this->which()) : $vendorUpdate->updateVendorAll();
         } catch (Exception $e) {
@@ -177,6 +174,7 @@ class LinkLocalPackage {
                 unset($repoList[$idx]);
             }
         }
+
         return $repoList;
     }
 }
