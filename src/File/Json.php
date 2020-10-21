@@ -41,7 +41,7 @@ class Json {
      * @return string
      * @throws ComposerToolsException
      */
-    function getPath (): string {
+    function getRealPath (): string {
         $path = realpath(dirname($this->composerFile));
         if ($path === false) {
             throw new ComposerToolsException(sprintf('failed to retrieve path for: %s', $this->composerFile));
@@ -85,12 +85,17 @@ class Json {
 
     /**
      * @param $key
+     * @param bool $throw
      * @param null $default
      *
      * @return mixed|null
      * @throws ComposerToolsException
      */
-    protected function getConfigKey ($key, $default = null) {
+    protected function getConfigKey ($key, bool $throw, $default = null) {
+        if ($throw && !$this->hasConfigKey($key)) {
+            throw new ComposerToolsException("key '{$key}' not found in file '{$this->getFileName()}'");
+        }
+
         return $this->hasConfigKey($key) ? $this->data[$key] : $default;
     }
 
@@ -113,7 +118,7 @@ class Json {
     }
 
     /**
-     * @throws Exception
+     * @throws ComposerToolsException
      */
     function save (): void {
         $this->data ? $this->update($this->data) : null;
@@ -122,7 +127,7 @@ class Json {
     /**
      * @param array $data
      *
-     * @throws Exception
+     * @throws ComposerToolsException
      */
     function update (array $data): void {
         $content = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
@@ -131,7 +136,7 @@ class Json {
         }
 
         if (!file_put_contents($this->getFileName(), $content)) {
-            throw new Exception(sprintf("failed to write %s", $this->getFileName()));
+            throw new ComposerToolsException(sprintf("failed to write %s", $this->getFileName()));
         }
     }
 

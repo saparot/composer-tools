@@ -6,8 +6,10 @@ use Saparot\ComposerTools\ComposerToolsException;
 
 class Composer extends Json {
 
+    const KEY_NAME = 'name';
     const KEY_VERSION = 'version';
     const KEY_REQUIRE = 'require';
+    const KEY_REPOSITORIES = 'repositories';
 
     /**
      * @param $package
@@ -26,7 +28,7 @@ class Composer extends Json {
      * @throws ComposerToolsException
      */
     function hasRequirePackage (string $package): bool {
-        return $this->hasConfigKey(self::KEY_REQUIRE) ? isset($this->getConfigKey(self::KEY_REQUIRE)[$package]) : false;
+        return $this->hasConfigKey(self::KEY_REQUIRE) ? isset($this->getConfigKey(self::KEY_REQUIRE, true)[$package]) : false;
     }
 
     /**
@@ -48,10 +50,16 @@ class Composer extends Json {
      * @return string|null
      * @throws ComposerToolsException
      */
-    function getVersion (): ?string {
-        $data = $this->getData();
+    function getVersion (): string {
+        return $this->getConfigKey(self::KEY_VERSION, true);
+    }
 
-        return isset($data[self::KEY_VERSION]) ? $data['version'] : null;
+    /**
+     * @return string|null
+     * @throws ComposerToolsException
+     */
+    function getName (): string {
+        return $this->getConfigKey(self::KEY_NAME, true);
     }
 
     /**
@@ -60,7 +68,7 @@ class Composer extends Json {
      * @return $this
      */
     function setVersion (string $version): self {
-        $this->set('version', $version);
+        $this->set(self::KEY_VERSION, $version);
 
         return $this;
     }
@@ -70,7 +78,7 @@ class Composer extends Json {
      * @throws ComposerToolsException
      */
     function getRepositories (): array {
-        return $this->getConfigKey('repositories', []);
+        return $this->getConfigKey(self::KEY_REPOSITORIES, false, []);
     }
 
     /**
@@ -79,7 +87,7 @@ class Composer extends Json {
      * @return $this
      */
     function setRepositories (array $repos): self {
-        $this->set('repositories', $repos);
+        $this->set(self::KEY_REPOSITORIES, $repos);
 
         return $this;
     }
