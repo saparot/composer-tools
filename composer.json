@@ -1,7 +1,7 @@
 {
   "name": "saparot/composer-tools",
   "description": "some tools to interact with composer tooling through php",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "library",
   "license": "MIT",
   "authors": [

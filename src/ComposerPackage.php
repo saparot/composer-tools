@@ -86,7 +86,7 @@ class ComposerPackage {
         if (file_exists($pathInstallation) && $realPathInstallation === false) {
             throw new ComposerToolsException("failed to resolve real path for path {$pathInstallation}");
         }
-        if (is_link($pathInstallation)) {
+        if ($this->isSymLinked($composerPackage)) {
             $detail = 'linked';
             if ($realPathInstallation === $composerPackage->getPath()) {
                 return true;
@@ -97,6 +97,18 @@ class ComposerPackage {
         $detail = 'not';
 
         return false;
+    }
+
+    /**
+     * @param ComposerPackage $composerPackage
+     *
+     * @return bool
+     * @throws ComposerToolsException
+     */
+    private function isSymLinked (ComposerPackage $composerPackage): bool {
+        $pathInstallation = $this->getPathInstallation($composerPackage);
+
+        return is_link($pathInstallation) || readlink($pathInstallation) !== $pathInstallation;
     }
 
     /**
