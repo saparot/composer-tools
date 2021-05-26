@@ -1,7 +1,7 @@
 {
   "name": "saparot/composer-tools",
   "description": "some tools to interact with composer tooling through php",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -22,6 +22,7 @@
   },
   "require": {
     "php": "^7.2",
+    "phlak/semver": "^3.2",
     "saparot/network-retriever": "^0.1"
   },
   "require-dev": {
